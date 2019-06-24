@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/ic_home_black_24dp"
+            android:title="@string/home" />
+        <item
+            android:id="@+id/nav_apps"
+            android:icon="@drawable/ic_apps_black_24dp"
+            android:title="@string/my_apps_and_games" />
+        <!--
+        <item
+            android:id="@+id/nav_slideshow"
+            android:icon="@drawable/ic_menu_slideshow"
+            android:title="Slideshow" />
+        <item
+            android:id="@+id/nav_manage"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Tools" />
+        -->
+    </group>
+
+    <group
+        android:id="@+id/nav_group_info"
+        android:checkableBehavior="none">
+            <!--
+            <item
+                android:id="@+id/nav_share"
+                android:icon="@drawable/ic_menu_share"
+                android:title="Share" />
+            <item
+                android:id="@+id/nav_send"
+                android:icon="@drawable/ic_menu_send"
+                android:title="Send" />
+                -->
+        <item
+            android:id="@+id/nav_settings"
+            android:title="@string/action_settings"
+            android:icon="@drawable/ic_settings_black_24dp"/>
+        <item
+            android:id="@+id/nav_share"
+            android:title="@string/share"
+            android:icon="@drawable/ic_share_black_24dp"/>
+        <item
+            android:id="@+id/nav_feedback"
+            android:title="@string/feedback"
+            android:icon="@drawable/ic_feedback_black_24dp"/>
+        <item
+            android:id="@+id/nav_info"
+            android:title="@string/about"
+            android:icon="@drawable/ic_info_outline_black_24dp"/>
+    </group>
+
+</menu>
