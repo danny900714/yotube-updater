@@ -346,6 +346,14 @@ public class AppManager {
         }
     }
 
+    public String getShortDescription() {
+        return appInfo.shortDescription.getOrDefault(Locale.getDefault().getLanguage(), appInfo.shortDescription.get("en"));
+    }
+
+    public String getLongDescription() {
+        return appInfo.longDescription.getOrDefault(Locale.getDefault().getLanguage(), appInfo.longDescription.get("en"));
+    }
+
     public String getPackageName() {
         return packageName;
     }
@@ -356,6 +364,23 @@ public class AppManager {
 
     public StorageReference getApkReference() {
         return mFirebaseStorage.getReferenceFromUrl(appInfo.apk);
+    }
+
+    public String getDeveloperName() {
+        return appInfo.developerName;
+    }
+
+    public int getRequiredAge() {
+        return appInfo.age;
+    }
+
+    public int getDisplayDownloads() {
+        int downloads = appInfo.downloads;
+        if (downloads < 10) return downloads;
+        String sDownloads = Integer.toString(downloads);
+        if (Integer.parseInt(Character.toString(sDownloads.charAt(0))) >= 5) sDownloads = "5" + sDownloads.substring(1);
+        else sDownloads = "1" + sDownloads.substring(1);
+        return Integer.parseInt(sDownloads);
     }
 
     public void downloadApk(Context context, final OnApkDownloadFinishListener finishListener, @Nullable final OnApkDownloadProgressListener progressListener, @Nullable OnCanceledListener canceledListener) {

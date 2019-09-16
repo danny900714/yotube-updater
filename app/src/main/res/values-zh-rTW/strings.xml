@@ -10,4 +10,9 @@
     <string name="not_support_auto_update">不支援自動更新</string>
     <string name="notification_chanel_install_name">安裝通知</string>
     <string name="installing_app">正在安裝「%1$s」…</string>
+    <string name="popular_apps">Popular apps</string>
+    <string name="about_this_app">About this app</string>
+    <string name="downloads">downloads</string>
+    <string name="install">Install</string>
+    <string name="mod_apk">Mod apk</string>
 </resources>

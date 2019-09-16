@@ -1,13 +1,20 @@
 package com.galaxy.youtube.updater;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.galaxy.youtube.updater.activity.DescriptionActivity;
 import com.galaxy.youtube.updater.apps.AppsFragment;
+import com.galaxy.youtube.updater.data.app.AppManager;
+import com.galaxy.youtube.updater.data.cluster.ClustersManager;
+import com.galaxy.youtube.updater.home.HomeFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -20,16 +27,21 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, AppsFragment.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener,
+                AppsFragment.OnFragmentInteractionListener,
+                HomeFragment.OnFragmentInteractionListener {
 
     private FirebaseAuth mAuth;
 
     private TextView mTxtUserName, mTxtUserEmail;
+    private ImageView mImgUserProfile;
     private FrameLayout mFrmLay;
-    private AppsFragment mAppsFragment = AppsFragment.newInstance();
+    private AppsFragment mAppsFragment;
+    private HomeFragment mHomeFragment = HomeFragment.newInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +60,9 @@ public class MainActivity extends AppCompatActivity
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        // show home fragment
+        replaceFragment(mHomeFragment);
+
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
@@ -58,6 +73,7 @@ public class MainActivity extends AppCompatActivity
         View header = navigationView.getHeaderView(0);
         mTxtUserName = header.findViewById(R.id.navHeaderTxtUserName);
         mTxtUserEmail = header.findViewById(R.id.navHeaderTxtUserEmail);
+        mImgUserProfile = header.findViewById(R.id.navHeaderImgUserProfile);
 
         // get user data and set to header
         mAuth.addAuthStateListener(new FirebaseAuth.AuthStateListener() {
@@ -67,6 +83,7 @@ public class MainActivity extends AppCompatActivity
                 if (user != null) {
                     mTxtUserName.setText(user.getDisplayName());
                     mTxtUserEmail.setText(user.getEmail());
+                    Glide.with(MainActivity.this).load(user.getPhotoUrl()).into(mImgUserProfile);
                 } else {
                     //TODO: show user not login dialog and stop app
                 }
@@ -119,11 +136,16 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_apps:
+                if (mAppsFragment == null) mAppsFragment = AppsFragment.newInstance();
                 frmTrans.replace(R.id.mainFrameLay, mAppsFragment);
-                frmTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-                frmTrans.commit();
+                break;
+            case R.id.nav_home:
+                if (mHomeFragment == null) mHomeFragment = HomeFragment.newInstance();
+                frmTrans.replace(R.id.mainFrameLay, mHomeFragment);
                 break;
         }
+        frmTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        frmTrans.commit();
 
         /*if (id == R.id.nav_camera) {
             // Handle the camera action
@@ -142,5 +164,27 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void OnClusterClick(View view, ClustersManager manager) {
+
+    }
+
+    @Override
+    public void OnAppInClusterClick(View view, AppManager manager) {
+        String packageName = manager.getPackageName();
+        Intent it = new Intent(this, DescriptionActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString(DescriptionActivity.KEY_PACKAGE_NAME, manager.getPackageName());
+        it.putExtras(bundle);
+        startActivity(it);
+    }
+
+    private void replaceFragment(Fragment fragment) {
+        FragmentTransaction frmTrans = getSupportFragmentManager().beginTransaction();
+        frmTrans.replace(R.id.mainFrameLay, fragment);
+        frmTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+        frmTrans.commit();
     }
 }

@@ -4,6 +4,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.PropertyName;
 
+import java.util.Map;
+
 @IgnoreExtraProperties
 public class AppInfo {
     public DocumentReference name;
@@ -18,4 +20,10 @@ public class AppInfo {
     public String apk;
     @PropertyName("new feature")
     public DocumentReference newFeature;
+    public int downloads;
+    public int age;
+    @PropertyName("short description")
+    public Map<String, String> shortDescription;
+    @PropertyName("long description")
+    public Map<String, String> longDescription;
 }

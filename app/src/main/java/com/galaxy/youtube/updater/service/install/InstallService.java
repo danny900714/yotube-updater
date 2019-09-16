@@ -5,14 +5,15 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.galaxy.util.receiver.PackageInstalledReceiver;
 import com.galaxy.youtube.updater.MainActivity;
 import com.galaxy.youtube.updater.NotificationChanelConstants;
 import com.galaxy.youtube.updater.R;
@@ -24,14 +25,21 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.File;
+import java.io.StringReader;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Queue;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.FileProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 /**
  * An {@link IntentService} subclass for handling asynchronous task requests in
@@ -40,6 +48,11 @@ import androidx.core.content.FileProvider;
  * helper methods.
  */
 public class InstallService extends Service {
+
+    // broadcast related actions and extra
+    /* public static final String ACTION_PACKAGE_INSTALLED = InstallService.class.getName() + ".PACKAGE_INSTALLED";
+    public static final String ACTION_DOWNLOAD_CANCELLED = InstallService.class.getName() + ".DOWNLOAD_CANCELLED";
+    public static final String EXTRA_BROADCAST_PACKAGE_NAME  = InstallService.class.getName() + ".BROADCAST_PACKAGE_NAME"; */
 
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
     private static final String ACTION_NORMAL_INSTALL = "com.galaxy.youtube.updater.service.install.action.NORMAL_INSTALL";
@@ -51,6 +64,12 @@ public class InstallService extends Service {
     private static final String EXTRA_APP_NAME = "com.galaxy.youtube.updater.service.install.extra.APP_NAME";
     private static final String EXTRA_APK_FILE_PATH = "com.galaxy.youtube.updater.service.install.extra.APK_FILE_PATH";
     private static final String EXTRA_APK_STORAGE_PATH = "com.galaxy.youtube.updater.service.install.extra.APK_STORAGE_PATH";
+
+    private final IBinder mBinder = new LocalBinder();
+    private Map<String, Consumer<String>> packageInstalledListeners = new HashMap<>();
+    private Map<String, Consumer<String>> downloadCancelledListeners = new HashMap<>();
+    private Map<String, Consumer<String>> downloadFinishedListeners = new HashMap<>();
+    private Map<String, Consumer<String>> installCanceledListeners = new HashMap<>();
 
     private PackageInstalledReceiver receiver;
     private NotificationManager notificationManager;
@@ -115,10 +134,9 @@ public class InstallService extends Service {
         registerReceiver(receiver, filter);
     }
 
-    @androidx.annotation.Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return mBinder;
     }
 
     @Override
@@ -155,6 +173,38 @@ public class InstallService extends Service {
         super.onDestroy();
         Log.w(InstallService.class.getSimpleName(), "onDestroy()");
         unregisterReceiver(receiver);
+    }
+
+    public void addPackageInstalledListener(String className, Consumer<String> listener) {
+        packageInstalledListeners.put(className, listener);
+    }
+
+    public void addDownloadCancelledListener(String className, Consumer<String> listener) {
+        downloadCancelledListeners.put(className, listener);
+    }
+
+    public void addDownloadFinishedListener(String className, Consumer<String> listener) {
+        downloadFinishedListeners.put(className, listener);
+    }
+
+    public void addInstallCanceledListener(String className, Consumer<String> listener) {
+        installCanceledListeners.put(className, listener);
+    }
+
+    public void removePackageInstalledListener(String className) {
+        packageInstalledListeners.remove(className);
+    }
+
+    public void removeDownloadCancelledListener(String className) {
+        downloadCancelledListeners.remove(className);
+    }
+
+    public void removeDownloadFinishedListener(String className) {
+        downloadFinishedListeners.remove(className);
+    }
+
+    public void removeInstallCanceledListener(String className) {
+        installCanceledListeners.remove(className);
     }
 
     private void handleNextTask() {
@@ -210,6 +260,9 @@ public class InstallService extends Service {
             @RequiresApi(api = Build.VERSION_CODES.M)
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                // fire listener
+                for (Map.Entry<String, Consumer<String>> entry: downloadFinishedListeners.entrySet()) entry.getValue().accept(packageName);
+
                 // show install notification
                 NotificationCompat.Builder installNotificationBuilder = new NotificationCompat.Builder(InstallService.this, NotificationChanelConstants.NOTIFICATION_CHANEL_INSTALL_ID)
                         .setSmallIcon(android.R.drawable.stat_sys_download)
@@ -241,6 +294,7 @@ public class InstallService extends Service {
             public void onCanceled() {
                 Log.w(InstallService.class.getSimpleName(), "download cancel");
                 notificationManager.cancel(packageName.hashCode());
+                for (Map.Entry<String, Consumer<String>> entry: downloadCancelledListeners.entrySet()) entry.getValue().accept(packageName);
             }
         });
 
@@ -252,6 +306,8 @@ public class InstallService extends Service {
     }
 
     private void handleActionSkipInstall(final File apkFile) {
+        for (Map.Entry<String, Consumer<String>> entry: installCanceledListeners.entrySet()) entry.getValue().accept(handlingIntent.getStringExtra(EXTRA_PACKAGE_NAME));
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -305,10 +361,22 @@ public class InstallService extends Service {
             throw new IllegalStateException("Apk file not found. Please download apk before install it.");
 
         Intent installIntent = new Intent(Intent.ACTION_VIEW)
-                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK)
                 .setDataAndType(FileProvider.getUriForFile(this, getPackageName(), apkFile), "application/vnd.android.package-archive");
         startActivity(installIntent);
     }
+
+    /* private void sendPackageInstalledBroadcast(String packageName) {
+        Intent it = new Intent(ACTION_PACKAGE_INSTALLED);
+        it.putExtra(EXTRA_BROADCAST_PACKAGE_NAME, packageName);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(it);
+    }
+
+    private void sendDownloadCancelledBroadcast(String packageName) {
+        Intent it = new Intent(ACTION_PACKAGE_INSTALLED);
+        it.putExtra(EXTRA_BROADCAST_PACKAGE_NAME, packageName);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(it);
+    } */
 
     private PackageInstalledReceiver.OnPackageInstalledListener onPackageInstalledListener = new PackageInstalledReceiver.OnPackageInstalledListener() {
         @Override
@@ -319,6 +387,7 @@ public class InstallService extends Service {
                     @Override
                     public void run() {
                         notificationManager.cancel(packageName.hashCode());
+                        for (Map.Entry<String, Consumer<String>> entry: packageInstalledListeners.entrySet()) entry.getValue().accept(packageName);
 
                         // delete apk file
                         File apkFile = new File(handlingIntent.getStringExtra(EXTRA_APK_FILE_PATH));
@@ -333,22 +402,9 @@ public class InstallService extends Service {
         }
     };
 
-    private static class PackageInstalledReceiver extends BroadcastReceiver {
-
-        private OnPackageInstalledListener listener;
-
-        private PackageInstalledReceiver(OnPackageInstalledListener listener) {
-            this.listener = listener;
-        }
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            String packageName = intent.getData().getEncodedSchemeSpecificPart();
-            listener.onPackageInstalled(packageName);
-        }
-
-        private interface OnPackageInstalledListener {
-            void onPackageInstalled(String packageName);
+    public class LocalBinder extends Binder {
+        public InstallService getService() {
+            return InstallService.this;
         }
     }
 }
