@@ -383,6 +383,14 @@ public class AppManager {
         return Integer.parseInt(sDownloads);
     }
 
+    public int getPrice() {
+        return appInfo.price;
+    }
+
+    public boolean hasNewUpdate(Context context) {
+        return !isLatestVersion(context, packageName, appInfo.versionCode);
+    }
+
     public void downloadApk(Context context, final OnApkDownloadFinishListener finishListener, @Nullable final OnApkDownloadProgressListener progressListener, @Nullable OnCanceledListener canceledListener) {
         final String apkName = getDefaultName() + " " + getVersionName();
 
@@ -485,7 +493,7 @@ public class AppManager {
             return pm.versionCode >= versionCode;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
-            return false;
+            return true;
         }
 
     }

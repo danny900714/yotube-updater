@@ -26,4 +26,5 @@ public class AppInfo {
     public Map<String, String> shortDescription;
     @PropertyName("long description")
     public Map<String, String> longDescription;
+    public int price;
 }

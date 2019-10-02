@@ -9,6 +9,8 @@ import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
 import com.galaxy.youtube.updater.data.app.AppManager;
+import com.galaxy.youtube.updater.data.user.UserManager;
+import com.galaxy.youtube.updater.dialog.EarnMoneyDialog;
 import com.galaxy.youtube.updater.service.install.InstallService;
 
 import androidx.appcompat.app.ActionBar;
@@ -23,7 +25,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.galaxy.youtube.updater.R;
+import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.material.button.MaterialButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class DescriptionActivity extends AppCompatActivity {
 
@@ -62,13 +67,28 @@ public class DescriptionActivity extends AppCompatActivity {
             mTxtAge.setText(getString(R.string.years_old_above, appManager.getRequiredAge()));
             mTxtAbout.setText(appManager.getShortDescription());
 
+            // set price
+            if (appManager.getPrice() != 0) mBtnInstall.setText("$" + appManager.getPrice());
+
             // set on click listener
             mBtnInstall.setOnClickListener(view -> {
                 mBtnCancel.setOnClickListener(v -> InstallService.startActionCancelDownload(this, appManager.getPackageName()));
                 mBtnCancel.setVisibility(View.VISIBLE);
                 mBtnInstall.setVisibility(View.INVISIBLE);
 
-                InstallService.startActionNormalInstall(this, appManager.getPackageName(), appManager.getName(), appManager.getApkFilePath(this), appManager.getApkReference().getPath());
+                // install apk
+                UserManager.getInstance(FirebaseAuth.getInstance().getUid(), userManager -> {
+                    if (userManager.getMoney() - appManager.getPrice() < 0) {
+                        mBtnCancel.setVisibility(View.INVISIBLE);
+                        mBtnInstall.setVisibility(View.VISIBLE);
+                        EarnMoneyDialog dialog = new EarnMoneyDialog();
+                        dialog.show(getSupportFragmentManager(), EarnMoneyDialog.TAG);
+                    } else {
+                        userManager.setMoney(userManager.getMoney() - appManager.getPrice());
+                        userManager.updateChanges(false);
+                        InstallService.startActionNormalInstall(this, appManager.getPackageName(), appManager.getName(), appManager.getApkFilePath(this), appManager.getApkReference().getPath());
+                    }
+                });
             });
         });
     }
@@ -125,6 +145,8 @@ public class DescriptionActivity extends AppCompatActivity {
             });
             mService.addPackageInstalledListener(DescriptionActivity.class.getName(), installedPackageName -> {
                 if (installedPackageName.equals(packageName)) {
+                    mBtnCancel.setVisibility(View.INVISIBLE);
+                    mBtnInstall.setVisibility(View.VISIBLE);
                     mService.stopForeground(true);
                 }
             });

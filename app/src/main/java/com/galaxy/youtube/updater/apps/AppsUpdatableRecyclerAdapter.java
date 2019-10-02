@@ -74,6 +74,7 @@ public class AppsUpdatableRecyclerAdapter extends RecyclerView.Adapter<AppsUpdat
         holder.mTxtName.setText(manager.getName());
         holder.mImgIcon.setContentDescription(manager.getName());
         holder.mTxtNewFeatures.setText(manager.getNewFeature());
+        if (manager.getPrice() > 0) holder.mBtnUpdate.setText("$" + manager.getPrice());
 
         // set icon
         Glide.with(context).load(manager.getIconReference()).into(holder.mImgIcon);

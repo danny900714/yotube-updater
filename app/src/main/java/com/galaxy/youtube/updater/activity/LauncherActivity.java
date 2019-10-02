@@ -8,7 +8,9 @@ import com.firebase.ui.auth.AuthUI;
 import com.galaxy.youtube.updater.MainActivity;
 import com.galaxy.youtube.updater.R;
 import com.galaxy.youtube.updater.data.ServerStatus;
+import com.galaxy.youtube.updater.data.app.AppManager;
 import com.galaxy.youtube.updater.dialog.ServerRepairingDialog;
+import com.galaxy.youtube.updater.dialog.UpdateUpdaterDialog;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -95,8 +97,18 @@ public class LauncherActivity extends AppCompatActivity implements ServerRepairi
                                                         .build(),
                                                 RC_SIGN_IN
                                         );
-                                    } else
-                                        startMainActivity();
+                                    } else {
+                                        // check if app should update
+                                        AppManager.getInstance("com.galaxy.youtube.updater", appManager -> {
+                                            if (appManager.hasNewUpdate(LauncherActivity.this)) {
+                                                UpdateUpdaterDialog dialog = new UpdateUpdaterDialog();
+                                                Bundle args = new Bundle();
+                                                args.putString(UpdateUpdaterDialog.KEY_VERSION_NAME, appManager.getVersionName());
+                                                dialog.setArguments(args);
+                                                dialog.show(getSupportFragmentManager(), UpdateUpdaterDialog.TAG);
+                                            } else startMainActivity();
+                                        });
+                                    }
                                 }
                             }
                         }
@@ -123,7 +135,7 @@ public class LauncherActivity extends AppCompatActivity implements ServerRepairi
     @Override
     public void onDialogPositiveClick(DialogFragment dialog) {
         if (dialog instanceof  ServerRepairingDialog) {
-            startMainActivity();
+            finish();
         }
     }
 

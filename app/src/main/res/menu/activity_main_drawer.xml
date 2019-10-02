@@ -38,6 +38,11 @@
                 android:title="Send" />
                 -->
         <item
+            android:id="@+id/nav_earn"
+            android:title="@string/earn_money"
+            android:icon="@drawable/ic_attach_money_black_24dp"/>
+
+        <item
             android:id="@+id/nav_settings"
             android:title="@string/action_settings"
             android:icon="@drawable/ic_settings_black_24dp"/>

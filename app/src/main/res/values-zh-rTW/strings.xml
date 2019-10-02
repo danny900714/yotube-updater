@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">YouTube Updater</string>
+    <string name="app_name">Mod Store</string>
     <string name="new_feature">新功能</string>
     <string name="notification_chanel_download_name">下載通知</string>
     <string name="available_updates">有可用的更新 (%1$d)</string>
@@ -11,8 +11,33 @@
     <string name="notification_chanel_install_name">安裝通知</string>
     <string name="installing_app">正在安裝「%1$s」…</string>
     <string name="popular_apps">Popular apps</string>
-    <string name="about_this_app">About this app</string>
-    <string name="downloads">downloads</string>
-    <string name="install">Install</string>
+    <string name="about_this_app">關於應用程式</string>
+    <string name="downloads">下載次數</string>
+    <string name="install">安裝</string>
     <string name="mod_apk">Mod apk</string>
+    <string name="watch_videos">觀看影片</string>
+    <string name="watch">觀看</string>
+    <string name="about">關於應用程式</string>
+    <string name="action_settings">設定</string>
+    <string name="ads_watched_today">今日已觀看$1%d則廣告</string>
+    <string name="developer_contact">開發者聯絡資訊</string>
+    <string name="dialog_server_repairing_title">伺服器正在維修</string>
+    <string name="dialog_server_repairing_message">我們很抱歉通知您伺服器正在維修，您將無法使用本應用程式，但您已安裝的應用程式仍能正常運作。我們將會盡快維修伺服器，感謝您的耐心等候。</string>
+    <string name="done">完成</string>
+    <string name="download_over">超過 %1$s 次</string>
+    <string name="earn_money">獲得金幣</string>
+    <string name="expand">展開</string>
+    <string name="feedback">反饋</string>
+    <string name="home">首頁</string>
+    <string name="my_apps_and_games">我的應用程式和遊戲</string>
+    <string name="nav_header_desc">導航列標題</string>
+    <string name="navigation_drawer_close">關閉側邊選單</string>
+    <string name="navigation_drawer_open">開啟側邊選單</string>
+    <string name="new_update_found">有可用的更新</string>
+    <string name="no_update_found">所有應用程式已是最新版本</string>
+    <string name="share">分享應用程式</string>
+    <string name="update_updater_dialog_message">Mod Store 已經可以更新至 $1$s。立即更新以享受最新的功能。</string>
+    <string name="years_old_above">%1$d歲以上</string>
+    <string name="your_coins">您的金幣：</string>
+    <string name="toast_no_ads">目前沒有影片，稍後再回來逛逛喔</string>
 </resources>

@@ -14,10 +14,13 @@ import android.widget.TextView;
 import com.galaxy.youtube.updater.BuildConfig;
 import com.galaxy.youtube.updater.R;
 import com.galaxy.youtube.updater.data.app.AppManager;
+import com.galaxy.youtube.updater.data.user.UserManager;
+import com.galaxy.youtube.updater.dialog.EarnMoneyDialog;
 import com.galaxy.youtube.updater.service.install.InstallService;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -188,8 +191,18 @@ public class AppsFragment extends Fragment implements AppsUpdatableRecyclerAdapt
             mRewardedAd.show(getActivity(), adCallback);
         }*/
 
-        AppManager manager = viewHolder.getAppManager();
-        InstallService.startActionNormalInstall(getContext(), manager.getPackageName(), manager.getName(), manager.getApkFilePath(getContext()), manager.getApkReference().getPath());
+        UserManager.getInstance(FirebaseAuth.getInstance().getUid(), userManager -> {
+            AppManager appManager = viewHolder.getAppManager();
+
+            if (userManager.getMoney() - appManager.getPrice() < 0) {
+                EarnMoneyDialog dialog = new EarnMoneyDialog();
+                dialog.show(getActivity().getSupportFragmentManager(), EarnMoneyDialog.TAG);
+            } else {
+                userManager.setMoney(userManager.getMoney() - appManager.getPrice());
+                userManager.updateChanges(false);
+                InstallService.startActionNormalInstall(getContext(), appManager.getPackageName(), appManager.getName(), appManager.getApkFilePath(getContext()), appManager.getApkReference().getPath());
+            }
+        });
     }
 
     @Override

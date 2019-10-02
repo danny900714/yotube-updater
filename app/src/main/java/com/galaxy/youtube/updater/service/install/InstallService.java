@@ -10,13 +10,21 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Binder;
 import android.os.Build;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.galaxy.util.receiver.PackageInstalledReceiver;
 import com.galaxy.youtube.updater.MainActivity;
 import com.galaxy.youtube.updater.NotificationChanelConstants;
 import com.galaxy.youtube.updater.R;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.reward.RewardItem;
+import com.google.android.gms.ads.reward.RewardedVideoAd;
+import com.google.android.gms.ads.reward.RewardedVideoAdListener;
+import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
@@ -231,6 +239,8 @@ public class InstallService extends Service {
 
     private void handleActionNormalInstall(final String apkFIlePath, String apkStoragePath, final String packageName, final String appName) {
         // TODO: improve notification
+        // load ad
+
         // show indeterminate notification
         final NotificationCompat.Builder builder = new NotificationCompat.Builder(this, NotificationChanelConstants.NOTIFICATION_CHANEL_DOWNLOAD_ID)
                 .setSmallIcon(android.R.drawable.stat_sys_download)
@@ -366,37 +376,23 @@ public class InstallService extends Service {
         startActivity(installIntent);
     }
 
-    /* private void sendPackageInstalledBroadcast(String packageName) {
-        Intent it = new Intent(ACTION_PACKAGE_INSTALLED);
-        it.putExtra(EXTRA_BROADCAST_PACKAGE_NAME, packageName);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(it);
-    }
-
-    private void sendDownloadCancelledBroadcast(String packageName) {
-        Intent it = new Intent(ACTION_PACKAGE_INSTALLED);
-        it.putExtra(EXTRA_BROADCAST_PACKAGE_NAME, packageName);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(it);
-    } */
-
     private PackageInstalledReceiver.OnPackageInstalledListener onPackageInstalledListener = new PackageInstalledReceiver.OnPackageInstalledListener() {
         @Override
         public void onPackageInstalled(final String packageName) {
             Log.d(InstallService.class.getSimpleName(), "Package installed: " + packageName);
             if (packageName.equals(handlingIntent.getStringExtra(EXTRA_PACKAGE_NAME))) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        notificationManager.cancel(packageName.hashCode());
-                        for (Map.Entry<String, Consumer<String>> entry: packageInstalledListeners.entrySet()) entry.getValue().accept(packageName);
+                for (Map.Entry<String, Consumer<String>> entry: packageInstalledListeners.entrySet()) entry.getValue().accept(packageName);
 
-                        // delete apk file
-                        File apkFile = new File(handlingIntent.getStringExtra(EXTRA_APK_FILE_PATH));
-                        apkFile.delete();
+                new Thread(() -> {
+                    notificationManager.cancel(packageName.hashCode());
 
-                        isHandlingTask = false;
-                        handlingIntent = null;
-                        handleNextTask();
-                    }
+                    // delete apk file
+                    File apkFile = new File(handlingIntent.getStringExtra(EXTRA_APK_FILE_PATH));
+                    apkFile.delete();
+
+                    isHandlingTask = false;
+                    handlingIntent = null;
+                    handleNextTask();
                 }).start();
             }
         }

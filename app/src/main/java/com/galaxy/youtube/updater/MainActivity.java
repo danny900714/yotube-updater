@@ -8,16 +8,25 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.galaxy.youtube.updater.activity.DescriptionActivity;
 import com.galaxy.youtube.updater.apps.AppsFragment;
 import com.galaxy.youtube.updater.data.app.AppManager;
 import com.galaxy.youtube.updater.data.cluster.ClustersManager;
+import com.galaxy.youtube.updater.data.user.UserManager;
+import com.galaxy.youtube.updater.dialog.EarnMoneyDialog;
 import com.galaxy.youtube.updater.home.HomeFragment;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.rewarded.RewardItem;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.gms.ads.rewarded.RewardedAdCallback;
+import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.io.File;
 
@@ -36,6 +45,7 @@ public class MainActivity extends AppCompatActivity
                 HomeFragment.OnFragmentInteractionListener {
 
     private FirebaseAuth mAuth;
+    private RewardedAd mRewardedAd;
 
     private TextView mTxtUserName, mTxtUserEmail;
     private ImageView mImgUserProfile;
@@ -142,6 +152,10 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_home:
                 if (mHomeFragment == null) mHomeFragment = HomeFragment.newInstance();
                 frmTrans.replace(R.id.mainFrameLay, mHomeFragment);
+                break;
+            case R.id.nav_earn:
+                EarnMoneyDialog dialog = new EarnMoneyDialog();
+                dialog.show(getSupportFragmentManager(), EarnMoneyDialog.TAG);
                 break;
         }
         frmTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
