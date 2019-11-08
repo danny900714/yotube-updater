@@ -74,18 +74,20 @@ public class AppsUpdatableRecyclerAdapter extends RecyclerView.Adapter<AppsUpdat
         holder.mTxtName.setText(manager.getName());
         holder.mImgIcon.setContentDescription(manager.getName());
         holder.mTxtNewFeatures.setText(manager.getNewFeature());
-        if (manager.getPrice() > 0) holder.mBtnUpdate.setText("$" + manager.getPrice());
+        // if (manager.getPrice() > 0) holder.mBtnUpdate.setText("$" + manager.getPrice());
 
         // set icon
         Glide.with(context).load(manager.getIconReference()).into(holder.mImgIcon);
 
         // get app size
-        manager.getApkReference().getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
-            @Override
-            public void onSuccess(StorageMetadata storageMetadata) {
-                holder.mTxtSize.setText(Formatter.formatShortFileSize(context, storageMetadata.getSizeBytes()));
-            }
-        });
+        if (manager.getApkUrl().startsWith("gs://")) {
+            manager.getApkReference().getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
+                @Override
+                public void onSuccess(StorageMetadata storageMetadata) {
+                    holder.mTxtSize.setText(Formatter.formatShortFileSize(context, storageMetadata.getSizeBytes()));
+                }
+            });
+        } else holder.mTxtSize.setText("? MB");
     }
 
     public void setAppManagerList(List<AppManager> appManagerList) {

@@ -68,7 +68,7 @@ public class DescriptionActivity extends AppCompatActivity {
             mTxtAbout.setText(appManager.getShortDescription());
 
             // set price
-            if (appManager.getPrice() != 0) mBtnInstall.setText("$" + appManager.getPrice());
+            // if (appManager.getPrice() != 0) mBtnInstall.setText("$" + appManager.getPrice());
 
             // set on click listener
             mBtnInstall.setOnClickListener(view -> {
@@ -78,16 +78,18 @@ public class DescriptionActivity extends AppCompatActivity {
 
                 // install apk
                 UserManager.getInstance(FirebaseAuth.getInstance().getUid(), userManager -> {
-                    if (userManager.getMoney() - appManager.getPrice() < 0) {
+                    /* if (userManager.getMoney() - appManager.getPrice() < 0) {
                         mBtnCancel.setVisibility(View.INVISIBLE);
                         mBtnInstall.setVisibility(View.VISIBLE);
                         EarnMoneyDialog dialog = new EarnMoneyDialog();
                         dialog.show(getSupportFragmentManager(), EarnMoneyDialog.TAG);
                     } else {
-                        userManager.setMoney(userManager.getMoney() - appManager.getPrice());
-                        userManager.updateChanges(false);
-                        InstallService.startActionNormalInstall(this, appManager.getPackageName(), appManager.getName(), appManager.getApkFilePath(this), appManager.getApkReference().getPath());
-                    }
+                    userManager.setMoney(userManager.getMoney() - appManager.getPrice());
+                    userManager.updateChanges(false); */
+
+                    if (appManager.getApkUrl().startsWith("gs://")) InstallService.startActionNormalInstall(this, appManager.getPackageName(), appManager.getName(), appManager.getApkFilePath(this), appManager.getApkReference().getPath());
+                    else InstallService.startActionNormalUrlInstall(this, appManager.getPackageName(), appManager.getName(), appManager.getApkFilePath(this), appManager.getApkUrl());
+                    // }
                 });
             });
         });

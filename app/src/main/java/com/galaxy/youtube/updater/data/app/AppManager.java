@@ -387,6 +387,10 @@ public class AppManager {
         return appInfo.price;
     }
 
+    public String getApkUrl() {
+        return appInfo.apk;
+    }
+
     public boolean hasNewUpdate(Context context) {
         return !isLatestVersion(context, packageName, appInfo.versionCode);
     }

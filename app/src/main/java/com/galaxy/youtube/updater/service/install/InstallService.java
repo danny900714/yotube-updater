@@ -1,13 +1,18 @@
 package com.galaxy.youtube.updater.service.install;
 
+import android.app.DownloadManager;
 import android.app.IntentService;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInstaller;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
@@ -19,6 +24,7 @@ import com.galaxy.util.receiver.PackageInstalledReceiver;
 import com.galaxy.youtube.updater.MainActivity;
 import com.galaxy.youtube.updater.NotificationChanelConstants;
 import com.galaxy.youtube.updater.R;
+import com.galaxy.youtube.updater.activity.DescriptionActivity;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.reward.RewardItem;
@@ -63,15 +69,16 @@ public class InstallService extends Service {
     public static final String EXTRA_BROADCAST_PACKAGE_NAME  = InstallService.class.getName() + ".BROADCAST_PACKAGE_NAME"; */
 
     // IntentService can perform, e.g. ACTION_FETCH_NEW_ITEMS
-    private static final String ACTION_NORMAL_INSTALL = "com.galaxy.youtube.updater.service.install.action.NORMAL_INSTALL";
-    private static final String ACTION_SILENT_INSTALL = "com.galaxy.youtube.updater.service.install.action.SILENT_INSTALL";
-    private static final String ACTION_SKIP_INSTALL = "com.galaxy.youtube.updater.service.install.action.SKIP_INSTALL";
-    private static final String ACTION_CANCEL_DOWNLOAD = "com.galaxy.youtube.updater.service.install.action.CANCEL_DOWNLOAD";
+    public static final String ACTION_NORMAL_INSTALL = "com.galaxy.youtube.updater.service.install.action.NORMAL_INSTALL";
+    public static final String ACTION_SILENT_INSTALL = "com.galaxy.youtube.updater.service.install.action.SILENT_INSTALL";
+    public static final String ACTION_SKIP_INSTALL = "com.galaxy.youtube.updater.service.install.action.SKIP_INSTALL";
+    public static final String ACTION_CANCEL_DOWNLOAD = "com.galaxy.youtube.updater.service.install.action.CANCEL_DOWNLOAD";
 
-    private static final String EXTRA_PACKAGE_NAME = "com.galaxy.youtube.updater.service.install.extra.PACKAGE_NAME";
-    private static final String EXTRA_APP_NAME = "com.galaxy.youtube.updater.service.install.extra.APP_NAME";
-    private static final String EXTRA_APK_FILE_PATH = "com.galaxy.youtube.updater.service.install.extra.APK_FILE_PATH";
-    private static final String EXTRA_APK_STORAGE_PATH = "com.galaxy.youtube.updater.service.install.extra.APK_STORAGE_PATH";
+    public static final String EXTRA_PACKAGE_NAME = "com.galaxy.youtube.updater.service.install.extra.PACKAGE_NAME";
+    public static final String EXTRA_APP_NAME = "com.galaxy.youtube.updater.service.install.extra.APP_NAME";
+    public static final String EXTRA_APK_FILE_PATH = "com.galaxy.youtube.updater.service.install.extra.APK_FILE_PATH";
+    public static final String EXTRA_APK_STORAGE_PATH = "com.galaxy.youtube.updater.service.install.extra.APK_STORAGE_PATH";
+    public static final String EXTRA_APK_URL = "com.galaxy.youtube.updater.service.install.extra.APK_URL";
 
     private final IBinder mBinder = new LocalBinder();
     private Map<String, Consumer<String>> packageInstalledListeners = new HashMap<>();
@@ -84,6 +91,7 @@ public class InstallService extends Service {
 
     private StorageReference mStorage;
     private FileDownloadTask downloadTask;
+    private DownloadApkAsyncTask downloadApkAsyncTask;
 
     private Queue<Intent> taskQueue = new ArrayDeque<>();
     private boolean isHandlingTask = false;
@@ -100,6 +108,16 @@ public class InstallService extends Service {
         intent.putExtra(EXTRA_APP_NAME, appName);
         intent.putExtra(EXTRA_APK_FILE_PATH, apkFilePath);
         intent.putExtra(EXTRA_APK_STORAGE_PATH, apkStoragePath);
+        context.startService(intent);
+    }
+
+    public static void startActionNormalUrlInstall(Context context, String packageName, String appName, String apkFilePath, String apkUrl) {
+        Intent intent = new Intent(context, InstallService.class);
+        intent.setAction(ACTION_NORMAL_INSTALL);
+        intent.putExtra(EXTRA_PACKAGE_NAME, packageName);
+        intent.putExtra(EXTRA_APP_NAME, appName);
+        intent.putExtra(EXTRA_APK_FILE_PATH, apkFilePath);
+        intent.putExtra(EXTRA_APK_URL, apkUrl);
         context.startService(intent);
     }
 
@@ -164,13 +182,16 @@ public class InstallService extends Service {
                     handleActionSilentInstall(param1, param2);
                     break;
                 case ACTION_SKIP_INSTALL:
-                    if (handlingIntent.getStringExtra(EXTRA_PACKAGE_NAME).equals(intent.getStringExtra(EXTRA_PACKAGE_NAME)) && isHandlingTask)
+                    if (handlingIntent.getStringExtra(EXTRA_PACKAGE_NAME).equals(intent.getStringExtra(EXTRA_PACKAGE_NAME)) && isHandlingTask) {
+                        notificationManager.cancel(handlingIntent.getStringExtra(EXTRA_PACKAGE_NAME).hashCode());
                         handleActionSkipInstall(new File(handlingIntent.getStringExtra(EXTRA_APK_FILE_PATH)));
+                    }
                     break;
                 case ACTION_CANCEL_DOWNLOAD:
                     Log.d(InstallService.class.getSimpleName(), "cancel package name = " + intent.getStringExtra(EXTRA_PACKAGE_NAME));
-                    if (handlingIntent.getStringExtra(EXTRA_PACKAGE_NAME).equals(intent.getStringExtra(EXTRA_PACKAGE_NAME)) && isHandlingTask && downloadTask.isInProgress())
+                    if (handlingIntent.getStringExtra(EXTRA_PACKAGE_NAME).equals(intent.getStringExtra(EXTRA_PACKAGE_NAME)) && isHandlingTask && (downloadTask == null ? downloadApkAsyncTask.getStatus() == AsyncTask.Status.RUNNING : downloadTask.isInProgress())) {
                         handleActionCancelDownload();
+                    }
             }
         }
         return super.onStartCommand(intent, flags, startId);
@@ -227,10 +248,16 @@ public class InstallService extends Service {
         switch (handlingIntent.getAction()) {
             case ACTION_NORMAL_INSTALL:
                 final String apkFilePath = handlingIntent.getStringExtra(EXTRA_APK_FILE_PATH);
-                final String apkStoragePath = handlingIntent.getStringExtra(EXTRA_APK_STORAGE_PATH);
                 final String packageName = handlingIntent.getStringExtra(EXTRA_PACKAGE_NAME);
                 final String appName = handlingIntent.getStringExtra(EXTRA_APP_NAME);
-                handleActionNormalInstall(apkFilePath, apkStoragePath, packageName, appName);
+
+                if (handlingIntent.getStringExtra(EXTRA_APK_STORAGE_PATH) == null) {
+                    final String apkUrl = handlingIntent.getStringExtra(EXTRA_APK_URL);
+                    handleActionNormalUrlInstall(apkFilePath, apkUrl, packageName, appName);
+                } else {
+                    final String apkStoragePath = handlingIntent.getStringExtra(EXTRA_APK_STORAGE_PATH);
+                    handleActionNormalInstall(apkFilePath, apkStoragePath, packageName, appName);
+                }
                 break;
             case ACTION_SILENT_INSTALL:
                 break;
@@ -246,9 +273,10 @@ public class InstallService extends Service {
                 .setSmallIcon(android.R.drawable.stat_sys_download)
                 .setContentTitle(appName)
                 .setProgress(0, 0, true);
-        Intent it = new Intent(this, MainActivity.class);
+        /* Intent it = new Intent(this, DescriptionActivity.class);
+        it.putExtra(DescriptionActivity.KEY_PACKAGE_NAME, packageName);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, it, 0);
-        builder.setContentIntent(pendingIntent);
+        builder.setContentIntent(pendingIntent); */
         // cancel action
         Intent itCancelAction = new Intent(this, InstallService.class);
         itCancelAction.setAction(ACTION_CANCEL_DOWNLOAD);
@@ -274,7 +302,8 @@ public class InstallService extends Service {
                 for (Map.Entry<String, Consumer<String>> entry: downloadFinishedListeners.entrySet()) entry.getValue().accept(packageName);
 
                 // show install notification
-                NotificationCompat.Builder installNotificationBuilder = new NotificationCompat.Builder(InstallService.this, NotificationChanelConstants.NOTIFICATION_CHANEL_INSTALL_ID)
+                showInstallNotification(packageName, appName);
+                /* NotificationCompat.Builder installNotificationBuilder = new NotificationCompat.Builder(InstallService.this, NotificationChanelConstants.NOTIFICATION_CHANEL_INSTALL_ID)
                         .setSmallIcon(android.R.drawable.stat_sys_download)
                         .setColor(getColor(R.color.colorPrimary))
                         .setContentTitle(String.format(getString(R.string.installing_app), appName));
@@ -288,7 +317,10 @@ public class InstallService extends Service {
                     notificationManager.createNotificationChannel(channel);
                     installNotificationBuilder.setChannelId(NotificationChanelConstants.NOTIFICATION_CHANEL_INSTALL_ID);
                 }
-                notificationManager.notify(packageName.hashCode(), installNotificationBuilder.build());
+                notificationManager.notify(packageName.hashCode(), installNotificationBuilder.build()); */
+
+                // free downloadTask
+                downloadTask = null;
 
                 File apkFile = new File(apkFIlePath);
                 normalInstallApk(apkFile);
@@ -308,6 +340,37 @@ public class InstallService extends Service {
             }
         });
 
+    }
+
+    private void handleActionNormalUrlInstall(final String apkFIlePath, final String apkUrl, final String packageName, final String appName) {
+        Log.d(InstallService.class.getSimpleName(), "Url install start!");
+        Log.d(InstallService.class.getSimpleName(), "apkFilePath: " + apkFIlePath);
+
+        downloadApkAsyncTask = new DownloadApkAsyncTask(this)
+                .setOnSuccessListener(id -> {
+                    // fire listeners
+                    for (Map.Entry<String, Consumer<String>> entry: downloadFinishedListeners.entrySet()) entry.getValue().accept(packageName);
+
+                    showInstallNotification(packageName, appName);
+
+                    File apkFile = new File(apkFIlePath);
+                    normalInstallApk(apkFile);
+                }).setOnCanceledListener(id -> {
+                    // fire listeners
+                    for (Map.Entry<String, Consumer<String>> entry: downloadCancelledListeners.entrySet()) entry.getValue().accept(packageName);
+                });
+        downloadApkAsyncTask.execute(new DownloadApkAsyncTask.Request(apkUrl, apkFIlePath, packageName).setTitle(appName));
+        // register broadcast receiver
+        /* registerReceiver(onApkDownloadCompletedReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(apkUrl))
+                .setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI)
+                .setAllowedOverMetered(true)
+                .setAllowedOverRoaming(true)
+                .setDestinationInExternalPublicDir()
+                .setTitle(appName);
+        DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        long downloadId = downloadManager.enqueue(request); */
     }
 
     private void handleActionSilentInstall(String param1, String param2) {
@@ -331,7 +394,8 @@ public class InstallService extends Service {
     }
 
     private void handleActionCancelDownload() {
-        downloadTask.cancel();
+        if (handlingIntent.getStringExtra(EXTRA_APK_STORAGE_PATH) == null) downloadApkAsyncTask.cancel(true);
+        else downloadTask.cancel();
 
         new Thread(new Runnable() {
             @Override
@@ -370,10 +434,29 @@ public class InstallService extends Service {
         if (apkFile == null || !apkFile.exists())
             throw new IllegalStateException("Apk file not found. Please download apk before install it.");
 
+        Log.d(InstallService.class.getSimpleName(), "install triggered");
         Intent installIntent = new Intent(Intent.ACTION_VIEW)
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_NEW_TASK)
                 .setDataAndType(FileProvider.getUriForFile(this, getPackageName(), apkFile), "application/vnd.android.package-archive");
         startActivity(installIntent);
+    }
+
+    private void showInstallNotification(String packageName, String appName) {
+        NotificationCompat.Builder installNotificationBuilder = new NotificationCompat.Builder(InstallService.this, NotificationChanelConstants.NOTIFICATION_CHANEL_INSTALL_ID)
+                .setSmallIcon(android.R.drawable.stat_sys_download)
+                .setColor(getColor(R.color.colorPrimary))
+                .setContentTitle(String.format(getString(R.string.installing_app), appName));
+        Intent skipInstallIntent = new Intent(InstallService.this, InstallService.class)
+                .setAction(ACTION_SKIP_INSTALL)
+                .putExtra(EXTRA_PACKAGE_NAME, packageName);
+        PendingIntent skipPendingIntent = PendingIntent.getService(InstallService.this, 0, skipInstallIntent, 0);
+        installNotificationBuilder.addAction(R.drawable.ic_close_black_24dp, getString(android.R.string.cancel), skipPendingIntent);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(NotificationChanelConstants.NOTIFICATION_CHANEL_INSTALL_ID, getString(NotificationChanelConstants.NOTIFICATION_CHANEL_INSTALL_NAME), NotificationManager.IMPORTANCE_LOW);
+            notificationManager.createNotificationChannel(channel);
+            installNotificationBuilder.setChannelId(NotificationChanelConstants.NOTIFICATION_CHANEL_INSTALL_ID);
+        }
+        notificationManager.notify(packageName.hashCode(), installNotificationBuilder.build());
     }
 
     private PackageInstalledReceiver.OnPackageInstalledListener onPackageInstalledListener = new PackageInstalledReceiver.OnPackageInstalledListener() {
@@ -395,6 +478,13 @@ public class InstallService extends Service {
                     handleNextTask();
                 }).start();
             }
+        }
+    };
+
+    private BroadcastReceiver onApkDownloadCompletedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(InstallService.class.getSimpleName(), "Download complete, and intent = " + intent.toString());
         }
     };
 

@@ -153,10 +153,10 @@ public class MainActivity extends AppCompatActivity
                 if (mHomeFragment == null) mHomeFragment = HomeFragment.newInstance();
                 frmTrans.replace(R.id.mainFrameLay, mHomeFragment);
                 break;
-            case R.id.nav_earn:
+            /* case R.id.nav_earn:
                 EarnMoneyDialog dialog = new EarnMoneyDialog();
                 dialog.show(getSupportFragmentManager(), EarnMoneyDialog.TAG);
-                break;
+                break; */
         }
         frmTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         frmTrans.commit();

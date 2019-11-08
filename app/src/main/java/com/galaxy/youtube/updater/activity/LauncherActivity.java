@@ -57,7 +57,7 @@ public class LauncherActivity extends AppCompatActivity implements ServerRepairi
         db = FirebaseFirestore.getInstance();
 
         // initialize AdMob
-        MobileAds.initialize(this, "ca-app-pub-9369855966075970~7748173830");
+        MobileAds.initialize(this);
 
         // wait 1 second and start task
         Handler handler = new Handler();

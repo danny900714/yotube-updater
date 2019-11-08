@@ -194,14 +194,15 @@ public class AppsFragment extends Fragment implements AppsUpdatableRecyclerAdapt
         UserManager.getInstance(FirebaseAuth.getInstance().getUid(), userManager -> {
             AppManager appManager = viewHolder.getAppManager();
 
-            if (userManager.getMoney() - appManager.getPrice() < 0) {
+            /* if (userManager.getMoney() - appManager.getPrice() < 0) {
                 EarnMoneyDialog dialog = new EarnMoneyDialog();
                 dialog.show(getActivity().getSupportFragmentManager(), EarnMoneyDialog.TAG);
             } else {
                 userManager.setMoney(userManager.getMoney() - appManager.getPrice());
-                userManager.updateChanges(false);
-                InstallService.startActionNormalInstall(getContext(), appManager.getPackageName(), appManager.getName(), appManager.getApkFilePath(getContext()), appManager.getApkReference().getPath());
-            }
+                userManager.updateChanges(false); */
+            if (appManager.getApkUrl().startsWith("gs://")) InstallService.startActionNormalInstall(getContext(), appManager.getPackageName(), appManager.getName(), appManager.getApkFilePath(getContext()), appManager.getApkReference().getPath());
+            else InstallService.startActionNormalUrlInstall(getContext(), appManager.getPackageName(), appManager.getName(), appManager.getApkFilePath(getContext()), appManager.getApkUrl());
+            // }
         });
     }
 
@@ -222,8 +223,10 @@ public class AppsFragment extends Fragment implements AppsUpdatableRecyclerAdapt
             if (appManagerList == null || appManagerList.size() == 0)
                 return;
 
-            for (AppManager appManager: appManagerList)
-                InstallService.startActionNormalInstall(getContext(), appManager.getPackageName(), appManager.getName(), appManager.getApkFilePath(getContext()), appManager.getApkReference().getPath());
+            for (AppManager appManager: appManagerList) {
+                if (appManager.getApkUrl().startsWith("gs://")) InstallService.startActionNormalInstall(getContext(), appManager.getPackageName(), appManager.getName(), appManager.getApkFilePath(getContext()), appManager.getApkReference().getPath());
+                else InstallService.startActionNormalUrlInstall(getContext(), appManager.getPackageName(), appManager.getName(), appManager.getApkFilePath(getContext()), appManager.getApkUrl());
+            }
         }
     };
 
