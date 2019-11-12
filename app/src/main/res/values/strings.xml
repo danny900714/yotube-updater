@@ -137,4 +137,11 @@
     <string name="update_updater_dialog_message">Mod Store %1$s has released. Get the newest feature and continue using Youtube Updater by updating right now!</string>
     <string name="toast_no_ads">There\'s no ads now, please go back to see later!</string>
     <string name="title_activity_feedback">FeedbackActivity</string>
+    <string name="feedback_content">Hey! Love or hate this app? We would love to hear from you.</string>
+    <string name="feedback_edit_text_hint">Please write your valuable feedback here.</string>
+    <string name="feedback_type">Feedback Type:</string>
+    <string name="bug_report">Bug Report</string>
+    <string name="suggestion">Suggestion</string>
+    <string name="attach_application_log">Attach application log</string>
+    <string name="attach_screenshot">Attach screenshot</string>
 </resources>

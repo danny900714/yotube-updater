@@ -11,8 +11,11 @@ import androidx.appcompat.widget.Toolbar;
 import android.view.View;
 
 import com.galaxy.youtube.updater.R;
+import com.google.android.material.textfield.TextInputEditText;
 
 public class FeedbackActivity extends AppCompatActivity {
+
+    private TextInputEditText mEdtFeedback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +25,11 @@ public class FeedbackActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        mEdtFeedback = findViewById(R.id.feedbackEdtFeedback);
+
+        // init feedback edit text
+        mEdtFeedback.requestFocus();
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
