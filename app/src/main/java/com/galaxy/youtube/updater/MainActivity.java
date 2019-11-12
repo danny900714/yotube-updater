@@ -12,6 +12,7 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.galaxy.youtube.updater.activity.DescriptionActivity;
+import com.galaxy.youtube.updater.activity.FeedbackActivity;
 import com.galaxy.youtube.updater.apps.AppsFragment;
 import com.galaxy.youtube.updater.data.app.AppManager;
 import com.galaxy.youtube.updater.data.cluster.ClustersManager;
@@ -153,6 +154,11 @@ public class MainActivity extends AppCompatActivity
                 if (mHomeFragment == null) mHomeFragment = HomeFragment.newInstance();
                 frmTrans.replace(R.id.mainFrameLay, mHomeFragment);
                 break;
+            case R.id.nav_feedback:
+                Intent it = new Intent();
+                it.setClass(this, FeedbackActivity.class);
+                startActivity(it);
+                break;
             /* case R.id.nav_earn:
                 EarnMoneyDialog dialog = new EarnMoneyDialog();
                 dialog.show(getSupportFragmentManager(), EarnMoneyDialog.TAG);
@@ -160,20 +166,6 @@ public class MainActivity extends AppCompatActivity
         }
         frmTrans.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
         frmTrans.commit();
-
-        /*if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }*/
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);

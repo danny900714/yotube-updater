@@ -136,4 +136,5 @@
     <string name="new_update_found">New update found</string>
     <string name="update_updater_dialog_message">Mod Store %1$s has released. Get the newest feature and continue using Youtube Updater by updating right now!</string>
     <string name="toast_no_ads">There\'s no ads now, please go back to see later!</string>
+    <string name="title_activity_feedback">FeedbackActivity</string>
 </resources>
