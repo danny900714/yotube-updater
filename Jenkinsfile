@@ -8,6 +8,7 @@ pipeline {
             steps {
                 sh 'mkdir -p /tmp/android-linux-sdk'
                 sh 'wget -P /tmp/android-linux-sdk/ https://dl.google.com/android/repository/platform-29_r03.zip'
+                sh 'mkdir -p /opt/android-linux-sdk'
                 sh 'unzip /tmp/android-linux-sdk/platform-29_r03.zip -d /opt/android-linux-sdk'
                 sh './gradlew clean assembleBetaDebug'
             }
