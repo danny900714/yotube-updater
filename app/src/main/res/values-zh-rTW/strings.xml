@@ -6,7 +6,7 @@
     <string name="available_updates">有可用的更新 (%1$d)</string>
     <string name="update_all">全部更新</string>
     <string name="update">更新</string>
-    <string name="checking_for_updates">正在檢查更新...</string>
+    <string name="checking_for_updates">正在檢查更新…</string>
     <string name="not_support_auto_update">不支援自動更新</string>
     <string name="notification_chanel_install_name">安裝通知</string>
     <string name="installing_app">正在安裝「%1$s」…</string>
