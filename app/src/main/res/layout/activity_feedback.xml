@@ -22,7 +22,7 @@
             android:fitsSystemWindows="true"
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            app:title="@string/feedback"
+            app:title="@string/send_feedback"
             app:toolbarId="@+id/toolbar">
 
             <androidx.appcompat.widget.Toolbar
@@ -31,6 +31,18 @@
                 android:layout_height="?attr/actionBarSize"
                 app:layout_collapseMode="pin"
                 app:popupTheme="@style/AppTheme.PopupOverlay" />
+
+            <!--
+            <ImageView
+                android:layout_width="64dp"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_menu_send"
+                android:padding="16dp"
+                android:layout_gravity="end"
+                android:tint="@android:color/white"
+                android:contentDescription="@string/send_feedback"
+                app:layout_collapseMode="none"/>
+            -->
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
     </com.google.android.material.appbar.AppBarLayout>

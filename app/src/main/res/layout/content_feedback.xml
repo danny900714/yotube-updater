@@ -17,6 +17,7 @@
             android:id="@+id/textView5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
             android:text="@string/feedback_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +45,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <RadioGroup
-            android:id="@+id/radioGroup2"
+            android:id="@+id/feedbackRdgType"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -52,15 +53,16 @@
             app:layout_constraintTop_toBottomOf="@+id/textView6">
 
             <RadioButton
-                android:id="@+id/radioButton"
+                android:id="@+id/feedbackRdbBug"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/bug_report" />
 
             <RadioButton
-                android:id="@+id/radioButton2"
+                android:id="@+id/feedbackRdbSuggestion"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
                 android:text="@string/suggestion" />
         </RadioGroup>
 
@@ -68,26 +70,26 @@
             android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:text="@string/feedback_type"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/editText" />
 
         <CheckBox
-            android:id="@+id/checkBox"
+            android:id="@+id/feedbackChkLog"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="@string/attach_application_log"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/radioGroup2" />
+            app:layout_constraintTop_toBottomOf="@+id/feedbackRdgType" />
 
         <CheckBox
-            android:id="@+id/checkBox2"
+            android:id="@+id/feedbackChkScreenshot"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/attach_screenshot"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/checkBox" />
+            app:layout_constraintTop_toBottomOf="@+id/feedbackChkLog" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>
