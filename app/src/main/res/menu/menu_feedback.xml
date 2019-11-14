@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.galaxy.youtube.updater.activity.FeedbackActivity">
+    <item
+        android:id="@+id/feedback_send"
+        android:icon="@drawable/ic_send_white_24dp"
+        android:title="@string/send_feedback"
+        app:showAsAction="ifRoom"/>
+</menu>

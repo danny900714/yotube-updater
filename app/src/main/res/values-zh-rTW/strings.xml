@@ -40,4 +40,13 @@
     <string name="years_old_above">%1$d歲以上</string>
     <string name="your_coins">您的金幣：</string>
     <string name="toast_no_ads">目前沒有影片，稍後再回來逛逛喔</string>
+    <string name="feedback_content">Hey! Love or hate this app? We would love to hear from you.</string>
+    <string name="feedback_edit_text_hint">Please write your valuable feedback here.</string>
+    <string name="feedback_type">Feedback Type:</string>
+    <string name="bug_report">Bug Report</string>
+    <string name="suggestion">Suggestion</string>
+    <string name="attach_application_log">Attach application log</string>
+    <string name="attach_screenshot">Attach screenshot</string>
+    <string name="send_feedback">Send Feedback</string>
+    <string name="attach_device_info">Attach device info</string>
 </resources>
