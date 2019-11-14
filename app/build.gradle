@@ -1,5 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.gms.google-services'
+apply plugin: 'com.google.android.gms.oss-licenses-plugin'
 apply plugin: 'io.fabric'
 apply plugin: 'com.google.firebase.firebase-perf'
 
@@ -9,8 +10,8 @@ android {
         applicationId "com.galaxy.youtube.updater"
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 2
-        versionName "1.1.0"
+        versionCode 10200
+        versionName "1.2.0-beta"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {
@@ -53,6 +54,9 @@ dependencies {
 
     // ads
     implementation 'com.google.android.gms:play-services-ads:18.3.0'
+
+    // open source license
+    implementation 'com.google.android.gms:play-services-oss-licenses:17.0.0'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.2.0'

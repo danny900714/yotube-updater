@@ -8,30 +8,9 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.bumptech.glide.Glide;
-import com.galaxy.youtube.updater.activity.DescriptionActivity;
-import com.galaxy.youtube.updater.activity.FeedbackActivity;
-import com.galaxy.youtube.updater.apps.AppsFragment;
-import com.galaxy.youtube.updater.data.app.AppManager;
-import com.galaxy.youtube.updater.data.cluster.ClustersManager;
-import com.galaxy.youtube.updater.data.user.UserManager;
-import com.galaxy.youtube.updater.dialog.EarnMoneyDialog;
-import com.galaxy.youtube.updater.home.HomeFragment;
-import com.google.android.gms.ads.AdRequest;
-import com.google.android.gms.ads.rewarded.RewardItem;
-import com.google.android.gms.ads.rewarded.RewardedAd;
-import com.google.android.gms.ads.rewarded.RewardedAdCallback;
-import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
-import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.io.File;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -40,10 +19,27 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.bumptech.glide.Glide;
+import com.galaxy.youtube.updater.activity.DescriptionActivity;
+import com.galaxy.youtube.updater.activity.FeedbackActivity;
+import com.galaxy.youtube.updater.apps.AppsFragment;
+import com.galaxy.youtube.updater.data.app.AppManager;
+import com.galaxy.youtube.updater.data.cluster.ClustersManager;
+import com.galaxy.youtube.updater.home.HomeFragment;
+import com.google.android.gms.ads.rewarded.RewardedAd;
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
                 AppsFragment.OnFragmentInteractionListener,
                 HomeFragment.OnFragmentInteractionListener {
+
+    private static final int SEND_FEEDBACK_REQUEST= 1;
 
     private FirebaseAuth mAuth;
     private RewardedAd mRewardedAd;
@@ -139,6 +135,17 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == SEND_FEEDBACK_REQUEST) {
+            if (resultCode == RESULT_OK) {
+                Snackbar.make(findViewById(android.R.id.content), R.string.feedback_successfully_sent, Snackbar.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -157,7 +164,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_feedback:
                 Intent it = new Intent();
                 it.setClass(this, FeedbackActivity.class);
-                startActivity(it);
+                startActivityForResult(it, SEND_FEEDBACK_REQUEST);
                 break;
             /* case R.id.nav_earn:
                 EarnMoneyDialog dialog = new EarnMoneyDialog();

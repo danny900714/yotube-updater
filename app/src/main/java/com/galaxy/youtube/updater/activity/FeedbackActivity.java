@@ -1,28 +1,24 @@
 package com.galaxy.youtube.updater.activity;
 
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-
-import com.google.android.material.appbar.AppBarLayout;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
-
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.CheckBox;
 import android.widget.RadioGroup;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.galaxy.youtube.updater.R;
+import com.galaxy.youtube.updater.data.feedback.FeedbackManager;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
 
-import java.util.Optional;
+import java.util.Objects;
 
+// TODO: improve by adding support to log and screenshot
 public class FeedbackActivity extends AppCompatActivity {
 
     private AppBarLayout mAppBarLay;
@@ -45,7 +41,7 @@ public class FeedbackActivity extends AppCompatActivity {
         mFabSend = findViewById(R.id.fab);
         mEdtFeedback = findViewById(R.id.feedbackEdtFeedback);
         mRdgType = findViewById(R.id.feedbackRdgType);
-        mChkLog = findViewById(R.id.feedbackChkLog);
+        mChkLog = findViewById(R.id.feedbackChkInfo);
         mChkSuggestion = findViewById(R.id.feedbackChkScreenshot);
 
         // init feedback edit text
@@ -70,14 +66,15 @@ public class FeedbackActivity extends AppCompatActivity {
         });
 
         // set send on Click listener
+        mFabSend.setOnClickListener(v -> sendFeedback());
 
-        mFabSend.setOnClickListener(new View.OnClickListener() {
+        /* mFabSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
-        });
+        }); */
     }
 
     @Override
@@ -88,10 +85,34 @@ public class FeedbackActivity extends AppCompatActivity {
         return true;
     }
 
-    private View.OnClickListener onSendClick = v -> {
-        // get data
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.feedback_send:
+                sendFeedback();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
-    };
+    private void sendFeedback() {
+        // get data
+        String type;
+        if (mRdgType.getCheckedRadioButtonId() == R.id.feedbackRdbBug) type = "bug";
+        else type = "suggestion";
+        String content = Objects.requireNonNull(mEdtFeedback.getText()).toString();
+        boolean isDeviceInfoEnabled = mChkLog.isChecked();
+
+        // send feedback
+        FeedbackManager feedbackManager = new FeedbackManager.Builder(FeedbackActivity.this, type, content)
+                .setDeviceInfoEnabled(isDeviceInfoEnabled)
+                .build();
+        feedbackManager.submit();
+
+        // send back result
+        setResult(RESULT_OK);
+        finish();
+    }
 
     private void hideOption(int resId) {
         MenuItem item = mMenu.findItem(resId);

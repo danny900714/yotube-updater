@@ -48,4 +48,5 @@
     <string name="attach_application_log">Attach application log</string>
     <string name="attach_screenshot">Attach screenshot</string>
     <string name="send_feedback">Send Feedback</string>
+    <string name="attach_device_info">Attach device info</string>
 </resources>
