@@ -147,4 +147,8 @@
     <string name="send_feedback">Send Feedback</string>
     <string name="attach_device_info">Attach device info</string>
     <string name="feedback_successfully_sent">Feedback was successfully sent</string>
+    <string name="version">Version %1$s</string>
+    <string name="app_introduction">The best android app store providing the highest quality of mod app. We stronly appreciate the developers dedicated to modding apps.</string>
+    <string name="close">Close</string>
+    <string name="changelog">Changelog</string>
 </resources>

@@ -16,6 +16,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -25,6 +26,7 @@ import com.galaxy.youtube.updater.activity.FeedbackActivity;
 import com.galaxy.youtube.updater.apps.AppsFragment;
 import com.galaxy.youtube.updater.data.app.AppManager;
 import com.galaxy.youtube.updater.data.cluster.ClustersManager;
+import com.galaxy.youtube.updater.dialog.AboutDialog;
 import com.galaxy.youtube.updater.home.HomeFragment;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.material.navigation.NavigationView;
@@ -166,6 +168,9 @@ public class MainActivity extends AppCompatActivity
                 it.setClass(this, FeedbackActivity.class);
                 startActivityForResult(it, SEND_FEEDBACK_REQUEST);
                 break;
+            case R.id.nav_info:
+                DialogFragment aboutDialog = new AboutDialog();
+                aboutDialog.showNow(getSupportFragmentManager(), AboutDialog.TAG);
             /* case R.id.nav_earn:
                 EarnMoneyDialog dialog = new EarnMoneyDialog();
                 dialog.show(getSupportFragmentManager(), EarnMoneyDialog.TAG);
