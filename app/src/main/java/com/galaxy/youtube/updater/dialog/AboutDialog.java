@@ -55,6 +55,10 @@ public class AboutDialog extends DialogFragment {
 
         // set click listener
         mImgClose.setOnClickListener(v -> dismiss());
+        mBtnChangelog.setOnClickListener(v -> {
+            DialogFragment dialog = new ChangelogDialog();
+            dialog.show(getActivity().getSupportFragmentManager(), ChangelogDialog.TAG);
+        });
         mBtnLicense.setOnClickListener(v -> startActivity(new Intent(getContext(), OssLicensesMenuActivity.class)));
         super.onActivityCreated(savedInstanceState);
     }

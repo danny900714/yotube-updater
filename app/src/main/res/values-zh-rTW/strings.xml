@@ -59,4 +59,5 @@
         "- 從這個版本開始，每次更新時將會顯示更新日誌\n"
     </string>
     <string name="bug_report">回報錯誤</string>
+    <string name="feedback_successfully_sent">感謝您傳送寶貴的意見</string>
 </resources>
