@@ -1,6 +1,9 @@
 package com.galaxy.youtube.updater;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,6 +30,7 @@ import com.galaxy.youtube.updater.apps.AppsFragment;
 import com.galaxy.youtube.updater.data.app.AppManager;
 import com.galaxy.youtube.updater.data.cluster.ClustersManager;
 import com.galaxy.youtube.updater.dialog.AboutDialog;
+import com.galaxy.youtube.updater.dialog.ChangelogDialog;
 import com.galaxy.youtube.updater.home.HomeFragment;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.material.navigation.NavigationView;
@@ -42,6 +46,7 @@ public class MainActivity extends AppCompatActivity
                 HomeFragment.OnFragmentInteractionListener {
 
     private static final int SEND_FEEDBACK_REQUEST= 1;
+    private static final String KEY_LAST_OPEN_VERSION = "last_open_version";
 
     private FirebaseAuth mAuth;
     private RewardedAd mRewardedAd;
@@ -98,6 +103,22 @@ public class MainActivity extends AppCompatActivity
                 }
             }
         });
+
+        // show changelog dialog if app updated
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        int lastOpenVersion = preferences.getInt(KEY_LAST_OPEN_VERSION, 0);
+        try {
+            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            if (packageInfo.versionCode > lastOpenVersion) {
+                ChangelogDialog dialog = new ChangelogDialog();
+                dialog.show(getSupportFragmentManager(), ChangelogDialog.TAG);
+                preferences.edit()
+                        .putInt(KEY_LAST_OPEN_VERSION, packageInfo.versionCode)
+                        .apply();
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
 
         // create apk directory
         File internalApkDir = new File(getFilesDir().getAbsolutePath() + File.separator + "apk");
