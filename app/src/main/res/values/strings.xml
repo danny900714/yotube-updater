@@ -62,10 +62,13 @@
     <string name="close">Close</string>
     <string name="changelog">Changelog</string>
     <string name="changelog_dialog_message">
-        "\n1.2.0\n\n"
+        "\n1.2.1\n\n"
 
-        "- User can send feedback now!\n"
-        "- Add app about information\n"
-        "- Add changelog in this and later versions\n"
+        "- Bug fix!\n"
+        "- You can share app now. Let's share this app with friends and family.\n"
     </string>
+    <string name="share_this_app">Share this app</string>
+    <string name="app_share_url" translatable="false">https://android-mod.netlify.com/apps/com.galaxy.youtube.updater/apks/Mod%20Store%201.2.1.apk</string>
+    <string name="url_successfully_copied">URL was copied successfully</string>
+    <string name="feedback_edit_text_error">You should provide your feedback.</string>
 </resources>

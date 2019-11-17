@@ -31,6 +31,7 @@ import com.galaxy.youtube.updater.data.app.AppManager;
 import com.galaxy.youtube.updater.data.cluster.ClustersManager;
 import com.galaxy.youtube.updater.dialog.AboutDialog;
 import com.galaxy.youtube.updater.dialog.ChangelogDialog;
+import com.galaxy.youtube.updater.dialog.ShareDialog;
 import com.galaxy.youtube.updater.home.HomeFragment;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.material.navigation.NavigationView;
@@ -192,6 +193,9 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_info:
                 DialogFragment aboutDialog = new AboutDialog();
                 aboutDialog.showNow(getSupportFragmentManager(), AboutDialog.TAG);
+            case R.id.nav_share:
+                ShareDialog dialog = new ShareDialog();
+                dialog.showNow(getSupportFragmentManager(), ShareDialog.TAG);
             /* case R.id.nav_earn:
                 EarnMoneyDialog dialog = new EarnMoneyDialog();
                 dialog.show(getSupportFragmentManager(), EarnMoneyDialog.TAG);

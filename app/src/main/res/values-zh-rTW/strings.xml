@@ -46,18 +46,20 @@
     <string name="attach_application_log">傳送應用程式錯誤日誌</string>
     <string name="attach_screenshot">傳送螢幕截圖</string>
     <string name="send_feedback">傳送反饋</string>
-    <string name="attach_device_info">重送裝置資訊</string>
+    <string name="attach_device_info">傳送裝置資訊</string>
     <string name="version">版本 %1$s</string>
     <string name="app_introduction">我們提供最棒的破解程式給 Android 平台上的用戶。我們也對那些努力不懈提供破解的開發者致敬。</string>
     <string name="close">關閉</string>
     <string name="changelog">更新日誌</string>
     <string name="changelog_dialog_message">
-        "\n1.2.0\n\n"
+        "\n1.2.1\n\n"
 
-        "- 使用者現在可以傳送反饋了\n"
-        "- 新增應用程式資訊\n"
-        "- 從這個版本開始，每次更新時將會顯示更新日誌\n"
+        "- 錯誤修正\n"
+        "- 現在可以分享本應用程式了，趕快分享給親朋好友吧。\n"
     </string>
     <string name="bug_report">回報錯誤</string>
     <string name="feedback_successfully_sent">感謝您傳送寶貴的意見</string>
+    <string name="share_this_app">分享應用程式</string>
+    <string name="url_successfully_copied">成功複製網址</string>
+    <string name="feedback_edit_text_error">您必須提供意見。</string>
 </resources>

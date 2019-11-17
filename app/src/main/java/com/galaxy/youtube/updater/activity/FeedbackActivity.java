@@ -15,6 +15,7 @@ import com.galaxy.youtube.updater.data.feedback.FeedbackManager;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import java.util.Objects;
 
@@ -23,6 +24,7 @@ public class FeedbackActivity extends AppCompatActivity {
 
     private AppBarLayout mAppBarLay;
     private FloatingActionButton mFabSend;
+    private TextInputLayout mEdtLayFeedback;
     private TextInputEditText mEdtFeedback;
     private RadioGroup mRdgType;
     private CheckBox mChkLog, mChkSuggestion;
@@ -39,6 +41,7 @@ public class FeedbackActivity extends AppCompatActivity {
         // init views
         mAppBarLay = findViewById(R.id.app_bar);
         mFabSend = findViewById(R.id.fab);
+        mEdtLayFeedback = findViewById(R.id.feedbackEdtLayFeedback);
         mEdtFeedback = findViewById(R.id.feedbackEdtFeedback);
         mRdgType = findViewById(R.id.feedbackRdgType);
         mChkLog = findViewById(R.id.feedbackChkInfo);
@@ -67,14 +70,6 @@ public class FeedbackActivity extends AppCompatActivity {
 
         // set send on Click listener
         mFabSend.setOnClickListener(v -> sendFeedback());
-
-        /* mFabSend.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        }); */
     }
 
     @Override
@@ -101,6 +96,11 @@ public class FeedbackActivity extends AppCompatActivity {
         if (mRdgType.getCheckedRadioButtonId() == R.id.feedbackRdbBug) type = "bug";
         else type = "suggestion";
         String content = Objects.requireNonNull(mEdtFeedback.getText()).toString();
+        if (content.equals("")) {
+            mEdtLayFeedback.setError(getText(R.string.feedback_edit_text_error));
+            mEdtLayFeedback.setErrorIconDrawable(null);
+            return;
+        }
         boolean isDeviceInfoEnabled = mChkLog.isChecked();
 
         // send feedback

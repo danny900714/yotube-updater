@@ -10,8 +10,8 @@ android {
         applicationId "com.galaxy.youtube.updater"
         minSdkVersion 24
         targetSdkVersion 29
-        versionCode 102003
-        versionName "1.2.0"
+        versionCode 102013
+        versionName "1.2.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {
