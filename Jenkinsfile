@@ -19,7 +19,7 @@ pipeline {
                 sh 'mkdir -p /opt/android-linux-sdk'
                 sh 'unzip /tmp/android-linux-sdk/platform-29_r03.zip -d /opt/android-linux-sdk'
                 sh 'chmod +x gradlew'
-                sh './gradlew clean assembleBetaDebug'
+                sh './gradlew clean'
             }
         }
         stage ('Build') {
