@@ -1,5 +1,13 @@
 pipeline {
-    agent { docker { image 'openjdk:8u232-stretch' } }
+    agent {
+        kubernetes {
+            containerTemplate {
+                name 'android'
+                image 'openjdk:8u232-stretch'
+                ttyEnabled true
+            }
+        }
+    }
     environment {
         ANDROID_HOME = '/opt/android-linux-sdk'
     }
